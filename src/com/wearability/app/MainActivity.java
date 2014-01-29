@@ -41,8 +41,10 @@ import android.widget.TextView;
 import android.widget.Toast;
  
 public class MainActivity extends Activity {
-  private static final String TAG = "bluetooth2";
+  private static final String TAG = "wearability";
   private GraphicalView mChartView;
+  
+  
 
   Button btnOn, btnOff;
   TextView txtArduino;
