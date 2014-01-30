@@ -13,7 +13,6 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.UUID;
 
-import org.achartengine.ChartFactory;
 import org.achartengine.GraphicalView;
 import org.achartengine.chart.PointStyle;
 import org.achartengine.model.XYMultipleSeriesDataset;
@@ -22,6 +21,9 @@ import org.achartengine.renderer.XYMultipleSeriesRenderer;
 import org.achartengine.renderer.XYSeriesRenderer;
  
 import com.wearability.app.R;
+
+import com.wearability.app.Point;
+import com.wearability.app.LineGraph;
  
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -42,10 +44,12 @@ import android.widget.Toast;
  
 public class MainActivity extends Activity {
   private static final String TAG = "wearability";
-  private GraphicalView mChartView;
   
+  private static GraphicalView view;
+  private LineGraph line = new LineGraph();
   
-
+  private static Thread drawThread;
+	
   Button btnOn, btnOff;
   TextView txtArduino;
   Handler h;
@@ -74,6 +78,7 @@ public class MainActivity extends Activity {
     btnOff = (Button) findViewById(R.id.btnOff);				// button LED OFF
     txtArduino = (TextView) findViewById(R.id.txtArduino);		// for display the received data from the Arduino
     
+    
     h = new Handler() {
     	public void handleMessage(android.os.Message msg) {
     		switch (msg.what) {
@@ -86,6 +91,11 @@ public class MainActivity extends Activity {
             		String sbprint = sb.substring(0, endOfLineIndex);				// extract string
                     sb.delete(0, sb.length());										// and clear
                 	txtArduino.setText("Data from Arduino: " + sbprint); 	        // update TextView
+                	if(sbprint.startsWith("--")){
+                		Point p = new Point(sbprint); 
+                		line.addNewPoints(p);
+                		view.repaint();
+                	}
                 	btnOff.setEnabled(true);
                 	btnOn.setEnabled(true); 
                 }
@@ -114,12 +124,12 @@ public class MainActivity extends Activity {
       }
     });
     
-    if (mChartView == null) {
+    if (view == null) {
     	LinearLayout layout = (LinearLayout) findViewById(R.id.chart);
-    	mChartView = ChartFactory.getLineChartView(this, getMyData(),getMyRenderer());
-    	layout.addView(mChartView);
+    	view = line.getView(this);
+    	layout.addView(view);
     	} else {
-    	mChartView.repaint(); // use this whenever data has changed and you want to redraw
+    	view.repaint(); // use this whenever data has changed and you want to redraw
     	   }
   }
   
@@ -182,8 +192,8 @@ public class MainActivity extends Activity {
     Log.d(TAG, "...Create Socket...");
    
     //New Charting
-    if (mChartView != null) {
-    	mChartView.repaint();
+    if (view != null) {
+    	view.repaint();
     	}
 
     
@@ -273,6 +283,7 @@ public class MainActivity extends Activity {
 	}
 
 
+  
 public XYMultipleSeriesDataset getMyData() {    
     XYMultipleSeriesDataset myData = new XYMultipleSeriesDataset();
      XYSeries dataSeries = new XYSeries("data");
