@@ -35,9 +35,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
+
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,16 +43,16 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
   private static final String TAG = "wearability";
   
-  private static GraphicalView view;
-  private LineGraph line = new LineGraph();
+  private static GraphicalView viewA;
+  private static GraphicalView viewB;
   
-  private static Thread drawThread;
-	
-  Button btnOn, btnOff;
+  private LineGraph lineA = new LineGraph();
+  private LineGraph lineB = new LineGraph();
+  
   TextView txtArduino;
   Handler h;
    
-  final int RECIEVE_MESSAGE = 1;		// Status  for Handler
+  final int RECEIVE_MESSAGE = 1;		// Status  for Handler
   private BluetoothAdapter btAdapter = null;
   private BluetoothSocket btSocket = null;
   private StringBuilder sb = new StringBuilder();
@@ -74,31 +72,38 @@ public class MainActivity extends Activity {
  
     setContentView(R.layout.activity_main);
     
-    btnOn = (Button) findViewById(R.id.btnOn);					// button LED ON
-    btnOff = (Button) findViewById(R.id.btnOff);				// button LED OFF
     txtArduino = (TextView) findViewById(R.id.txtArduino);		// for display the received data from the Arduino
     
     
     h = new Handler() {
     	public void handleMessage(android.os.Message msg) {
     		switch (msg.what) {
-            case RECIEVE_MESSAGE:													// if receive massage
+            case RECEIVE_MESSAGE:													// if receive massage
             	byte[] readBuf = (byte[]) msg.obj;
             	String strIncom = new String(readBuf, 0, msg.arg1);					// create string from bytes array
             	sb.append(strIncom);												// append string
+            	
             	int endOfLineIndex = sb.indexOf("\r\n");							// determine the end-of-line
             	if (endOfLineIndex > 0) { 											// if end-of-line,
             		String sbprint = sb.substring(0, endOfLineIndex);				// extract string
                     sb.delete(0, sb.length());										// and clear
                 	txtArduino.setText("Data from Arduino: " + sbprint); 	        // update TextView
-                	if(sbprint.startsWith("--")){
-                		Point p = new Point(sbprint); 
-                		line.addNewPoints(p);
-                		view.repaint();
+                	
+                	
+                	if(sbprint.startsWith("-a-") && sbprint.length() == 9 && sbprint.endsWith("-a-")){
+                		Point p = new Point(lineA.getLastX()+1,parseValue(sbprint)); 
+                		lineA.addRectifiedPoint(p);
+                		viewA.repaint();
+                		lineB.addWeightedPoint(lineA,p);
+                		viewB.repaint();
+                		
                 	}
-                	btnOff.setEnabled(true);
-                	btnOn.setEnabled(true); 
+                	//btnOff.setEnabled(true);
+                	//btnOn.setEnabled(true); 
                 }
+            	else{
+            		Log.d(TAG, "The number of points: " + strIncom + "...");
+            	}
             	//Log.d(TAG, "...String:"+ sb.toString() +  "Byte:" + msg.arg1 + "...");
             	break;
     		}
@@ -107,30 +112,22 @@ public class MainActivity extends Activity {
      
     btAdapter = BluetoothAdapter.getDefaultAdapter();		// get Bluetooth adapter
     checkBTState();
- 
-    btnOn.setOnClickListener(new OnClickListener() {
-      public void onClick(View v) {
-    	btnOn.setEnabled(false);
-    	mConnectedThread.write("1");	// Send "1" via Bluetooth
-        //Toast.makeText(getBaseContext(), "Turn on LED", Toast.LENGTH_SHORT).show();
-      }
-    });
- 
-    btnOff.setOnClickListener(new OnClickListener() {
-      public void onClick(View v) {
-    	btnOff.setEnabled(false);  
-    	mConnectedThread.write("0");	// Send "0" via Bluetooth
-        //Toast.makeText(getBaseContext(), "Turn off LED", Toast.LENGTH_SHORT).show();
-      }
-    });
     
-    if (view == null) {
-    	LinearLayout layout = (LinearLayout) findViewById(R.id.chart);
-    	view = line.getView(this);
-    	layout.addView(view);
-    	} else {
-    	view.repaint(); // use this whenever data has changed and you want to redraw
-    	   }
+    if (viewA == null || viewB == null) {
+    	LinearLayout layout = (LinearLayout) findViewById(R.id.chart1);
+    	viewA = lineA.getView(this);
+    	layout.addView(viewA);
+    	
+    	LinearLayout layout2 = (LinearLayout) findViewById(R.id.chart2);
+		viewB = lineB.getView(this);		
+		layout2.addView(viewB);
+		
+    	} 
+    else {
+    	viewA.repaint();
+    	viewB.repaint();
+       }
+    
   }
   
   private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
@@ -192,10 +189,12 @@ public class MainActivity extends Activity {
     Log.d(TAG, "...Create Socket...");
    
     //New Charting
-    if (view != null) {
-    	view.repaint();
-    	}
-
+    if (viewA != null) {
+    	viewA.repaint();
+    }
+    if (viewB != null) {
+    	viewB.repaint();
+    }
     
     mConnectedThread = new ConnectedThread(btSocket);
     mConnectedThread.start();
@@ -234,6 +233,25 @@ public class MainActivity extends Activity {
     Toast.makeText(getBaseContext(), title + " - " + message, Toast.LENGTH_LONG).show();
     finish();
   }
+  
+  private int parseValue(String text){
+	  char[] tempBuf = null;
+		tempBuf = new char[3];	
+		
+		try {
+		text.getChars(3, 6, tempBuf, 0);
+		
+		
+		} catch (StringIndexOutOfBoundsException e) {
+			Log.e("wearability", "Could not parse point", e);
+			throw e;
+		}
+		
+		String temp2 = new String(tempBuf);
+		
+		return  Integer.parseInt(temp2);
+		
+  }
  
   private class ConnectedThread extends Thread {
 	    private final InputStream mmInStream;
@@ -263,8 +281,9 @@ public class MainActivity extends Activity {
 	        	try {
 	                // Read from the InputStream
 	                bytes = mmInStream.read(buffer);		// Get number of bytes and message in "buffer"
-                    h.obtainMessage(RECIEVE_MESSAGE, bytes, -1, buffer).sendToTarget();		// Send to message queue Handler
+                    h.obtainMessage(RECEIVE_MESSAGE, bytes, -1, buffer).sendToTarget();		// Send to message queue Handler
 	            } catch (IOException e) {
+	            	Log.d(TAG, "...Error data read: " + e.getMessage() + "...");
 	                break;
 	            }
 	        }
@@ -281,59 +300,5 @@ public class MainActivity extends Activity {
 	          }
 	    }
 	}
-
-
-  
-public XYMultipleSeriesDataset getMyData() {    
-    XYMultipleSeriesDataset myData = new XYMultipleSeriesDataset();
-     XYSeries dataSeries = new XYSeries("data");
-         dataSeries.add(0,2);
-         dataSeries.add(1,1);
-         dataSeries.add(2,4);
-         dataSeries.add(3,3);
-         dataSeries.add(4,2);
-         dataSeries.add(5,6);
-         myData.addSeries(dataSeries);
-         
-         XYSeries dataSeries2 = new XYSeries("data");
-         dataSeries2.add(0,1);
-         dataSeries2.add(1,1);
-         dataSeries2.add(2,2);
-         dataSeries2.add(3,1);
-         dataSeries2.add(4,2);
-         dataSeries2.add(5,4);
-         myData.addSeries(dataSeries2);
-
-         
-         return myData;
-    }
-
-public XYMultipleSeriesRenderer getMyRenderer() {    
-    XYSeriesRenderer r = new XYSeriesRenderer();
-        r.setColor(Color.BLUE);
-        r.setLineWidth(10);        
-        
-        r.setPointStyle(PointStyle.SQUARE); // CIRCLE, DIAMOND , POINT, TRIANGLE, X
-        r.setFillPoints(true); // not for point or x
-        // don't know how to set point size or point color
-        
-        r.setFillBelowLine(true);
-        r.setFillBelowLineColor(Color.WHITE);
-        
-        XYMultipleSeriesRenderer myRenderer = new XYMultipleSeriesRenderer(); 
-        myRenderer.addSeriesRenderer(r);
-        
-        XYSeriesRenderer r2 = new XYSeriesRenderer();
-        r2.setColor(Color.RED);
-        r2.setLineWidth(10);
-        r2.setPointStyle(PointStyle.DIAMOND);
-        r2.setFillPoints(true); 
-        r2.setFillBelowLine(false);
-        myRenderer.addSeriesRenderer(r2);
-
-        
-        
-        return myRenderer;
-}
 
 }

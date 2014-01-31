@@ -34,10 +34,12 @@ public final class R {
         public static final int list_selector=0x7f020006;
     }
     public static final class id {
-        public static final int btnOff=0x7f080000;
-        public static final int btnOn=0x7f080001;
-        public static final int chart=0x7f080003;
-        public static final int txtArduino=0x7f080002;
+        public static final int btnOff=0x7f080003;
+        public static final int btnOn=0x7f080004;
+        public static final int chart=0x7f080005;
+        public static final int chart1=0x7f080001;
+        public static final int chart2=0x7f080002;
+        public static final int txtArduino=0x7f080000;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
