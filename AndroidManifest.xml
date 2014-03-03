@@ -32,8 +32,10 @@
             android:name="com.wearability.app.HomeActivity"
             android:label="@string/title_activity_main"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light" >
+            android:theme="@android:style/Theme.Holo.Light" >
         </activity>
+        <!--  Old theme caused issues, check with Chris if he uploaded: android:theme="@style/Theme.AppCompat.Light" -->
+        
         <activity
             android:name="com.wearability.app.StartActivity"
             android:label="@string/title_activity_start"
