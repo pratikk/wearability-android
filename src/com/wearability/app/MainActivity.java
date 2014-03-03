@@ -14,12 +14,6 @@ import java.lang.reflect.Method;
 import java.util.UUID;
 
 import org.achartengine.GraphicalView;
-import org.achartengine.chart.PointStyle;
-import org.achartengine.model.XYMultipleSeriesDataset;
-import org.achartengine.model.XYSeries;
-import org.achartengine.renderer.XYMultipleSeriesRenderer;
-import org.achartengine.renderer.XYSeriesRenderer;
- 
 import com.wearability.app.R;
 
 import com.wearability.app.Point;
@@ -30,7 +24,6 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -76,7 +69,8 @@ public class MainActivity extends Activity {
     
     
     h = new Handler() {
-    	public void handleMessage(android.os.Message msg) {
+    	@Override
+		public void handleMessage(android.os.Message msg) {
     		switch (msg.what) {
             case RECEIVE_MESSAGE:													// if receive massage
             	byte[] readBuf = (byte[]) msg.obj;
@@ -272,7 +266,8 @@ public class MainActivity extends Activity {
 	        mmOutStream = tmpOut;
 	    }
 	 
-	    public void run() {
+	    @Override
+		public void run() {
 	        byte[] buffer = new byte[256];  // buffer store for the stream
 	        int bytes; // bytes returned from read()
 

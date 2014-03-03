@@ -1,7 +1,5 @@
 package com.wearability.app;
 
-import android.util.Log;
-
 public class Point {
 	
 	private int x;
