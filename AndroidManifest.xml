@@ -34,8 +34,8 @@
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Holo.Light" >
         </activity>
-        <!--  Old theme caused issues, check with Chris if he uploaded: android:theme="@style/Theme.AppCompat.Light" -->
-        
+        <!-- Old theme caused issues, check with Chris if he uploaded: android:theme="@style/Theme.AppCompat.Light" -->
+
         <activity
             android:name="com.wearability.app.StartActivity"
             android:label="@string/title_activity_start"
@@ -53,6 +53,18 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wearability.app.StartActivity" />
+        </activity>
+        <activity
+            android:name="com.wearability.app.ChestActivity"
+            android:label="@string/title_activity_chest" >
+        </activity>
+        <activity
+            android:name="com.wearability.app.AbsActivity"
+            android:label="@string/title_activity_abs"
+            android:parentActivityName="com.wearability.app.BodyDisplay" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.wearability.app.BodyDisplay" />
         </activity>
     </application>
 
