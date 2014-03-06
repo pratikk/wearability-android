@@ -1,5 +1,7 @@
 package com.wearability.app;
 
+import java.util.HashMap;
+
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
@@ -14,6 +16,11 @@ import android.support.v4.app.NavUtils;
 
 public class BodyDisplay extends Activity {
 
+	//Match musclegroup with imageview id
+	HashMap <MuscleGroup, ImageView> muscleIds = new HashMap<MuscleGroup, ImageView>();
+	//TODO: Delete temp map to be replaced with database table relating muscle group to activation (or work, or something)
+	HashMap <MuscleGroup, Integer> muscleActivations = new HashMap<MuscleGroup, Integer>();
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -22,7 +29,13 @@ public class BodyDisplay extends Activity {
 		// Show the Up button in the action bar.
 		setupActionBar();
 		
+		muscleIds.put(MuscleGroup.ABS, (ImageView) findViewById(R.id.abs));
+		//TODO: Delete temp data, to be replaced with database mapping
+		muscleActivations.put(MuscleGroup.ABS, 35);
+		
 		ImageView iv = (ImageView) findViewById(R.id.muscle_areas);
+		
+		shadeBody();
 		
 		iv.setOnTouchListener(new View.OnTouchListener() {
 	        public boolean onTouch(View v, MotionEvent event) {
@@ -38,17 +51,17 @@ public class BodyDisplay extends Activity {
 	        			intent.setClass(BodyDisplay.this, ChestActivity.class);
 	        		} else if (touchColor == Color.parseColor("#009415")) {
 	        			//Set abs green (which we would do async from data acquisition side)
-	        			ImageView abs = (ImageView) findViewById(R.id.abs);
-	        			abs.bringToFront();
-	        			Float f = abs.getAlpha();
-	        			if (abs.getAlpha() < 0.33) {
-	        				abs.setAlpha(0.33F);
-	        			} else if (abs.getAlpha() < 0.66) {
-	        				abs.setAlpha(0.66F);
-	        			} else {
-	        				abs.setAlpha(1F);
-	        			}
-	        			
+//	        			ImageView abs = (ImageView) findViewById(R.id.abs);
+//	        			abs.bringToFront();
+//	        			Float f = abs.getAlpha();
+//	        			if (abs.getAlpha() < 0.33) {
+//	        				abs.setAlpha(0.33F);
+//	        			} else if (abs.getAlpha() < 0.66) {
+//	        				abs.setAlpha(0.66F);
+//	        			} else {
+//	        				abs.setAlpha(1F);
+//	        			}
+//	        			
 	        			//Go to abs activity (where we list exercises)
 	        			intent.setClass(BodyDisplay.this, AbsActivity.class);
 	        		} else {
@@ -61,6 +74,12 @@ public class BodyDisplay extends Activity {
 	            }
 	        }
 	    });
+	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		shadeBody();
 	}
 
 	/**
@@ -96,72 +115,7 @@ public class BodyDisplay extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 	
-//	public void onTouchEvent(View view, MotionEvent event){
-//		
-//		if (event.getAction() == MotionEvent.ACTION_DOWN){
-//            final int x = (int) event.getX();
-//            final int y = (int) event.getY();
-//                		
-//    		Intent intent = new Intent();
-//    		
-//    		int touchColor = getHotspotColor (R.id.muscle_areas, x, y);
-//
-//    		if (touchColor == Color.parseColor("#FF0000")) {
-//    			intent.setClass(this, ChestActivity.class);
-//    		} else {
-//    			intent.setClass(this, BodyDisplay.class);
-//    		}
-//    		startActivity(intent);
-//
-//        }
-//	}
-	
-	// EXAMPLE CODE 
-//	public boolean onTouch (View v, MotionEvent ev) {
-//		 final int action = ev.getAction();
-//		 // (1) 
-//		 final int evX = (int) ev.getX();
-//		 final int evY = (int) ev.getY();
-//		 Object nextImage;
-//		switch (action) {
-//			 case MotionEvent.ACTION_DOWN :
-//				 /*if (currentResource == R.drawable.muscles) {
-//					 nextImage = R.drawable.p2_ship_pressed;
-//				 } */
-//				 //This is for the ship to start motion, instead we will overlay with semi-transparent green layer?
-//				 break;
-//			 case MotionEvent.ACTION_UP :
-//			   // On the UP, we do the click action.
-//			   // The hidden image (image_areas) has three different hotspots on it.
-//			   // The colors are red, blue, and yellow.
-//			   // Use image_areas to determine which region the user touched.
-//			   // (2)
-//				 int touchColor = getHotspotColor (R.id.muscle_areas, evX, evY);
-//			   // Compare the touchColor to the expected values. 
-//			   // Switch to a different image, depending on what color was touched.
-//			   // Note that we use a Color Tool object to test whether the 
-//			   // observed color is close enough to the real color to
-//			   // count as a match. We do this because colors on the screen do 
-//			   // not match the map exactly because of scaling and
-//			   // varying pixel density.
-//				 int tolerance = 25;
-//				 nextImage = R.drawable.p2_ship_default;
-//			   // (3)
-//				 if (closeMatch (Color.RED, touchColor, tolerance)) {
-//			      // Do the action associated with the RED region
-//					 nextImage = R.drawable.p2_ship_alien;
-//				 } else {
-//					 //...
-//				 }
-//				 break;
-//		  } // end switch
-//		  if (nextImage > 0) {
-//		    imageView.setImageResource (nextImage);
-//		    imageView.setTag (nextImage);
-//		  }
-//		  return true;
-//	  }
-	
+	//Use mapping image to identify which region was selected
 	public int getHotspotColor (int hotspotId, int x, int y) {
 		  ImageView img = (ImageView) findViewById (hotspotId);
 		  img.setDrawingCacheEnabled(true); 
@@ -169,5 +123,30 @@ public class BodyDisplay extends Activity {
 		  img.setDrawingCacheEnabled(false);
 		  return hotspots.getPixel(x, y);
 	}
-
+	
+	//Shade appropriate body parts according to data
+	public void shadeBody() {
+		ImageView iv;
+		int activation;
+		for (MuscleGroup mg : MuscleGroup.values()) {
+			if (muscleIds.containsKey(mg) && muscleActivations.containsKey(mg)) {
+				iv = muscleIds.get(mg);
+				//check db for data
+				//TODO: replace temp map with actual db
+				activation = muscleActivations.get(mg);
+				
+				//data shows abs are <=33% active
+				if (activation < 25) {
+					iv.setAlpha(0.0F);
+				} else if (activation < 50) {
+					iv.setAlpha(0.33F);
+				} else if (activation < 75) {
+					iv.setAlpha(0.66F);
+				} else {
+					iv.setAlpha(1.0F);
+				}				
+				iv.bringToFront();			
+			}
+		}		
+	}
 }
