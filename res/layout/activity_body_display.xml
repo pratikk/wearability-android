@@ -1,10 +1,20 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
  xmlns:tools="http://schemas.android.com/tools"
  android:id="@+id/my_frame"
+ android:background="@drawable/grad_background"
  android:layout_width="match_parent"
  android:layout_height="match_parent" 
  tools:context=".BodyDisplay" >
     
+    <TextView
+     android:id="@+id/instructions"
+     android:layout_width="match_parent"
+     android:layout_height="40dp"
+     android:text="Please fully extend the highlighted muscle group" 
+     android:gravity="center" 
+     android:alpha="0.0 "/>
+    
+    <!-- Duplicate this for every muscle group -->
 	<ImageView 
 	 android:id="@+id/abs"
 	 android:layout_width="fill_parent" 
@@ -13,12 +23,21 @@
 	 android:src="@drawable/abs60"
 	 android:alpha="0.0" />
     
+    <ImageView 
+	 android:id="@+id/biceps"
+	 android:layout_width="fill_parent" 
+	 android:layout_height="fill_parent" 
+	 android:scaleType="fitCenter"
+	 android:src="@drawable/biceps60"
+	 android:alpha="0.0" />
+    
 	<ImageView 
 	 android:id="@+id/muscle_areas"
 	 android:layout_width="fill_parent" 
 	 android:layout_height="fill_parent" 
 	 android:scaleType="fitCenter"
-	 android:src="@drawable/musclemap" />
+	 android:src="@drawable/musclemap" 
+	 android:alpha="0.0" />
 	
 	 <ImageView
 	 android:id="@+id/image"
@@ -26,5 +45,5 @@
 	 android:layout_height="fill_parent" 
 	 android:scaleType="fitCenter"
 	 android:src="@drawable/muscles" />
-  
+
 </FrameLayout>

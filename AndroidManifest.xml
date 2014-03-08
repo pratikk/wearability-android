@@ -66,6 +66,18 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.wearability.app.BodyDisplay" />
         </activity>
+        <activity
+            android:name="com.wearability.app.BicepsActivity"
+            android:label="@string/title_activity_biceps"
+            android:parentActivityName="com.wearability.app.BodyDisplay" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.wearability.app.BodyDisplay" />
+        </activity>
+        <activity
+            android:name="com.wearability.app.SummaryActivity"
+            android:label="@string/title_activity_summary" >
+        </activity>
     </application>
 
 </manifest>

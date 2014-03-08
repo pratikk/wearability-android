@@ -11,7 +11,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.support.v4.app.NavUtils;
 
 public class BodyDisplay extends Activity {
@@ -19,7 +23,9 @@ public class BodyDisplay extends Activity {
 	//Match musclegroup with imageview id
 	HashMap <MuscleGroup, ImageView> muscleIds = new HashMap<MuscleGroup, ImageView>();
 	//TODO: Delete temp map to be replaced with database table relating muscle group to activation (or work, or something)
-	HashMap <MuscleGroup, Integer> muscleActivations = new HashMap<MuscleGroup, Integer>();
+	static HashMap <MuscleGroup, Integer> muscleActivations = new HashMap<MuscleGroup, Integer>();
+	
+	boolean toCalibrate;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +35,44 @@ public class BodyDisplay extends Activity {
 		// Show the Up button in the action bar.
 		setupActionBar();
 		
+		/* TODO: Fix calibration process (later)
+		toCalibrate = true;
+		
+		//Create calibration alpha animations
+		AlphaAnimation animation1 = new AlphaAnimation(0.0f, 1.0f);
+	    animation1.setDuration(1000);
+	    animation1.setStartOffset(5000);
+
+	    AlphaAnimation animation2 = new AlphaAnimation(1.0f, 0.0f);
+	    animation2.setDuration(1000);
+	    animation2.setStartOffset(5000);
+	    
+	    animation1.setAnimationListener(new AnimationListener(){
+
+	        @Override
+	        public void onAnimationEnd(Animation arg0) {
+	            // start animation2 when animation1 ends (continue)
+	            textView.startAnimation(animation2);
+	        }
+
+	        @Override
+	        public void onAnimationRepeat(Animation arg0) {
+	            // TODO Auto-generated method stub
+
+	        }
+
+	        @Override
+	        public void onAnimationStart(Animation arg0) {
+	            // TODO Auto-generated method stub
+
+	        }
+
+	    });
+	    */
+		
+		//TODO: Has to be a better way to go about setting these muscle groups - iterate through enum, use inspection??
 		muscleIds.put(MuscleGroup.ABS, (ImageView) findViewById(R.id.abs));
+		muscleIds.put(MuscleGroup.BICEPS, (ImageView) findViewById(R.id.biceps));
 		//TODO: Delete temp data, to be replaced with database mapping
 		muscleActivations.put(MuscleGroup.ABS, 35);
 		
@@ -47,28 +90,19 @@ public class BodyDisplay extends Activity {
 	        		
 	        		int touchColor = getHotspotColor (R.id.muscle_areas, x, y);
 
-	        		if (touchColor == Color.parseColor("#FF0000")) {
+	        		if (touchColor == Color.parseColor(MuscleGroup.CHEST.getColour())) {
 	        			intent.setClass(BodyDisplay.this, ChestActivity.class);
-	        		} else if (touchColor == Color.parseColor("#009415")) {
-	        			//Set abs green (which we would do async from data acquisition side)
-//	        			ImageView abs = (ImageView) findViewById(R.id.abs);
-//	        			abs.bringToFront();
-//	        			Float f = abs.getAlpha();
-//	        			if (abs.getAlpha() < 0.33) {
-//	        				abs.setAlpha(0.33F);
-//	        			} else if (abs.getAlpha() < 0.66) {
-//	        				abs.setAlpha(0.66F);
-//	        			} else {
-//	        				abs.setAlpha(1F);
-//	        			}
-//	        			
-	        			//Go to abs activity (where we list exercises)
+	        		} else if (touchColor == Color.parseColor(MuscleGroup.ABS.getColour())) {
 	        			intent.setClass(BodyDisplay.this, AbsActivity.class);
-	        		} else {
-	        			intent.setClass(BodyDisplay.this, BodyDisplay.class);
+	        		} else if (touchColor == Color.parseColor(MuscleGroup.BICEPS.getColour())) {
+	        			intent.setClass(BodyDisplay.this, BicepsActivity.class);
 	        		}
-	        		startActivity(intent);
-	        		return true;
+	        		try {
+		        		startActivity(intent);
+		        		return true;
+	        		} catch (android.content.ActivityNotFoundException anf) {
+	        			return false;
+	        		}
 	            } else {
 	            	return false;
 	            }
@@ -76,12 +110,28 @@ public class BodyDisplay extends Activity {
 	    });
 	}
 	
+//	@Override
+//	protected void onResume() {
+//		super.onResume();
+//		if (toCalibrate) {
+//			calibrate();
+//		} else {
+//			shadeBody();
+//		}
+//	}
+	
 	@Override
-	protected void onResume() {
-		super.onResume();
-		shadeBody();
+	public void onWindowFocusChanged(boolean hasFocus) {
+		super.onWindowFocusChanged(hasFocus);
+		if (hasFocus) {
+			if (toCalibrate) {
+				calibrate();
+			} else {
+				shadeBody();
+			}
+		}
 	}
-
+	
 	/**
 	 * Set up the {@link android.app.ActionBar}.
 	 */
@@ -135,18 +185,42 @@ public class BodyDisplay extends Activity {
 				//TODO: replace temp map with actual db
 				activation = muscleActivations.get(mg);
 				
-				//data shows abs are <=33% active
-				if (activation < 25) {
-					iv.setAlpha(0.0F);
-				} else if (activation < 50) {
-					iv.setAlpha(0.33F);
-				} else if (activation < 75) {
-					iv.setAlpha(0.66F);
-				} else {
-					iv.setAlpha(1.0F);
-				}				
+				iv.setAlpha(activation/100F);
 				iv.bringToFront();			
 			}
 		}		
+	}
+	
+	public static void setActivation(MuscleGroup mg, int alpha) {
+		muscleActivations.put(mg, alpha);
+	}
+	
+	public static int getActivation(MuscleGroup mg) {
+		return muscleActivations.get(mg);
+	}
+	
+	//Calibrate with MVC of person
+	public void calibrate() {
+		/*TODO: Uncomment, and fix as expansion to MVP
+		//Show instructions
+		TextView tv = (TextView) findViewById(R.id.instructions);
+		tv.setAlpha(1.0F);
+		
+		ImageView iv;
+		for (MuscleGroup mg : MuscleGroup.values()) {
+			if (muscleIds.containsKey(mg)) {
+				iv = muscleIds.get(mg);
+				//while(calibration info not received)
+				for (int i = 0; i < 5; i++) {
+					iv.bringToFront();
+					iv.setAlpha(1.0F);
+					iv.setAlpha(0.0F);
+				}
+			}
+		}
+		
+		tv.setAlpha(0.0F);
+		toCalibrate = false;
+		*/
 	}
 }
