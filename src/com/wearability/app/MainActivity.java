@@ -1,12 +1,14 @@
 /**
  *  @version 1.1 (28.01.2013)
  *  http://english.cxem.net/arduino/arduino5.php
- *  @author Koltykov A.V. (Колтыков А.В.)
+ *  @author Koltykov A.V. (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ.пїЅ.)
  * 
  */
 
 package com.wearability.app;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,11 +16,11 @@ import java.lang.reflect.Method;
 import java.util.UUID;
 
 import org.achartengine.GraphicalView;
-import com.wearability.app.R;
 
+import com.wearability.app.R;
 import com.wearability.app.Point;
 import com.wearability.app.LineGraph;
- 
+
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -28,7 +30,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -76,27 +77,53 @@ public class MainActivity extends Activity {
             	byte[] readBuf = (byte[]) msg.obj;
             	String strIncom = new String(readBuf, 0, msg.arg1);					// create string from bytes array
             	sb.append(strIncom);												// append string
-            	
-            	int endOfLineIndex = sb.indexOf("\r\n");							// determine the end-of-line
-            	if (endOfLineIndex > 0) { 											// if end-of-line,
-            		String sbprint = sb.substring(0, endOfLineIndex);				// extract string
-                    sb.delete(0, sb.length());										// and clear
-                	txtArduino.setText("Data from Arduino: " + sbprint); 	        // update TextView
-                	
-                	
-                	if(sbprint.startsWith("-a-") && sbprint.length() == 9 && sbprint.endsWith("-a-")){
-                		Point p = new Point(lineA.getLastX()+1,parseValue(sbprint)); 
-                		lineA.addRectifiedPoint(p);
-                		viewA.repaint();
-                		lineB.addWeightedPoint(lineA,p);
-                		viewB.repaint();
-                		
+            	//PKTEST
+            	while(sb.length() != 0) {
+            		boolean goodValue = true;
+	            	int endOfLineIndex = sb.indexOf("\r\n");							// determine the end-of-line
+	            	if (endOfLineIndex == -1) {
+	            		goodValue = false;
+//	            		endOfLineIndex = sb.indexOf("\r");
+//	            		if (endOfLineIndex == -1) {
+//	            			endOfLineIndex = sb.indexOf("\n");
+//	            		}
+	            	} else {		//Good value, check if \r or \n will sneak in 
+	            		if (sb.indexOf("\r") < endOfLineIndex) {
+	            			endOfLineIndex = sb.indexOf("\r");
+	            			goodValue = false;
+	            		} else if (sb.indexOf("\n") < endOfLineIndex) {
+	            			endOfLineIndex = sb.indexOf("\n");
+	            			goodValue = false;
+	            		}
+	            	}
+	            	
+	            	if (endOfLineIndex > 0) { 											// if end-of-line,
+	            		String sbprint = sb.substring(0, endOfLineIndex);				// extract string
+	                    if (goodValue) {	//should be + 2, +1 I think
+	                    	sb.delete(0, endOfLineIndex + 4);										// and clear including carriage returns
+	                    } else {
+	                    	sb.delete(0, endOfLineIndex + 2);										// and clear including carriage returns
+	                    }
+                    	//PKTEST
+	                    
+	                	if (sbprint.length() == 4 && goodValue) {	//PKTEST: math.random to speed things up?
+		            		Point p = new Point(lineA.getLastX()+1,parseValue(sbprint)); 
+		            		lineA.addRectifiedPoint(p);
+		            		viewA.repaint();
+		            		lineB.addWeightedPoint(lineA,p);
+		            		viewB.repaint();
+//	                		String oldtext = (String) txtArduino.getText() + "\r\n" + sbprint;
+//	                        txtArduino.setText(oldtext); 	        // update TextView
                 	}
-                	//btnOff.setEnabled(true);
-                	//btnOn.setEnabled(true); 
-                }
-            	else{
-            		Log.d(TAG, "The number of points: " + strIncom + "...");
+	                		
+	                	//btnOff.setEnabled(true);
+	                	//btnOn.setEnabled(true); 
+	                } else if (endOfLineIndex == 0) {
+	                	sb.delete(0, 2);
+	                } else {
+	            		Log.d(TAG, "The number of points: " + strIncom + "...");
+	                	break;
+	            	}
             	}
             	//Log.d(TAG, "...String:"+ sb.toString() +  "Byte:" + msg.arg1 + "...");
             	break;
@@ -178,10 +205,7 @@ public class MainActivity extends Activity {
         errorExit("Fatal Error", "In onResume() and unable to close socket during connection failure" + e2.getMessage() + ".");
       }
     }
-     
-    // Create a data stream so we can talk to server.
-    Log.d(TAG, "...Create Socket...");
-   
+      
     //New Charting
     if (viewA != null) {
     	viewA.repaint();
@@ -190,8 +214,12 @@ public class MainActivity extends Activity {
     	viewB.repaint();
     }
     
+ // Create a data stream so we can talk to server.
+    Log.d(TAG, "...Create Socket...");
     mConnectedThread = new ConnectedThread(btSocket);
+    Log.d(TAG, "...Socket created...");
     mConnectedThread.start();
+    Log.d(TAG, "...Socket started...");
   }
  
   @Override
@@ -230,10 +258,12 @@ public class MainActivity extends Activity {
   
   private int parseValue(String text){
 	  char[] tempBuf = null;
-		tempBuf = new char[3];	
-		
+	  tempBuf = new char[3];	
+	  
+	    Log.d(TAG, "...Attempting to parse " + text + "...");
+
 		try {
-		text.getChars(3, 6, tempBuf, 0);
+		text.getChars(0, 2, tempBuf, 0);
 		
 		
 		} catch (StringIndexOutOfBoundsException e) {
@@ -242,8 +272,11 @@ public class MainActivity extends Activity {
 		}
 		
 		String temp2 = new String(tempBuf);
+		Log.d(TAG, "...This should be an int: " + temp2 + "...");
 		
-		return  Integer.parseInt(temp2);
+	    int toReturn = Integer.parseInt(temp2.trim(), 16);
+	    
+	    return toReturn;
 		
   }
  
@@ -260,7 +293,9 @@ public class MainActivity extends Activity {
 	        try {
 	            tmpIn = socket.getInputStream();
 	            tmpOut = socket.getOutputStream();
-	        } catch (IOException e) { }
+	        } catch (IOException e) { 
+	        	Log.d(TAG, "IOException: " + e.getMessage() + " --- ");
+	        }
 	 
 	        mmInStream = tmpIn;
 	        mmOutStream = tmpOut;
@@ -278,6 +313,7 @@ public class MainActivity extends Activity {
 	                bytes = mmInStream.read(buffer);		// Get number of bytes and message in "buffer"
                     h.obtainMessage(RECEIVE_MESSAGE, bytes, -1, buffer).sendToTarget();		// Send to message queue Handler
 	            } catch (IOException e) {
+	            	
 	            	Log.d(TAG, "...Error data read: " + e.getMessage() + "...");
 	                break;
 	            }
@@ -294,6 +330,15 @@ public class MainActivity extends Activity {
 	            Log.d(TAG, "...Error data send: " + e.getMessage() + "...");     
 	          }
 	    }
+	    
+	    
+	    //PKTEST:
+	    
+	    
+	    
+	    
+	    
+	    
 	}
 
 }

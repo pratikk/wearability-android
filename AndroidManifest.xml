@@ -28,8 +28,9 @@
         </activity
         -->
 
+		<!-- Changed app.HomeActivity to app.MainActivity -->
         <activity
-            android:name="com.wearability.app.HomeActivity"
+            android:name="com.wearability.app.MainActivity"
             android:label="@string/title_activity_main"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Holo.Light" >

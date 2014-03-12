@@ -93,7 +93,7 @@ public class BodyDisplay extends Activity {
 	        		if (touchColor == Color.parseColor(MuscleGroup.CHEST.getColour())) {
 	        			intent.setClass(BodyDisplay.this, ChestActivity.class);
 	        		} else if (touchColor == Color.parseColor(MuscleGroup.ABS.getColour())) {
-	        			intent.setClass(BodyDisplay.this, AbsActivity.class);
+	        			intent.setClass(BodyDisplay.this, MainActivity.class);
 	        		} else if (touchColor == Color.parseColor(MuscleGroup.BICEPS.getColour())) {
 	        			intent.setClass(BodyDisplay.this, BicepsActivity.class);
 	        		}
