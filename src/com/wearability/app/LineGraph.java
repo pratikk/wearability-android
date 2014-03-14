@@ -28,15 +28,21 @@ public class LineGraph {
 	private float total_activ;
 	
 	
+	
 	public LineGraph()
 	{
+		
 		mDataset.addSeries(dataset);
 		
-		renderer.setColor(Color.GREEN);
-		renderer.setPointStyle(PointStyle.SQUARE);
+		renderer.setColor(Color.BLUE);
+		renderer.setPointStyle(PointStyle.POINT);
 		renderer.setFillPoints(true);
 		
 		mRenderer.setPanEnabled(false,false);
+		mRenderer.setApplyBackgroundColor(true);
+		mRenderer.setBackgroundColor(Color.parseColor("#fff3f3f3"));
+		mRenderer.setMarginsColor(Color.parseColor("#fff3f3f3"));
+		
 		mRenderer.addSeriesRenderer(renderer);
 		mRenderer.setXTitle("Time (ms)");
 		mRenderer.setYTitle("Intensity");

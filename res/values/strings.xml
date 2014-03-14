@@ -16,5 +16,9 @@
     <string name="desc_list_item_icon">Item Icon</string>
     <string name="title_activity_start">StartActivity</string>
     <string name="title_activity_body_display">BodyDisplay</string>
+    <string name="title_activity_exercise_list">ExerciseList</string>
+    <string name="title_activity_exercise_progress">Exercise Progress</string>
+    <string name="exercise_progress">Exercise!</string>
+    <string name="title_activity_results">Results</string>
 
 </resources>
