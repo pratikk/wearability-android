@@ -6,17 +6,19 @@ import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.ImageView;
 import android.support.v4.app.NavUtils;
 
-public class BicepsActivity extends Activity {
+public class ProgressActivity extends Activity {
 
+	boolean firstClick;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_biceps);
+		setContentView(R.layout.activity_progress);
 		// Show the Up button in the action bar.
 		setupActionBar();
+		firstClick = true;
 	}
 
 	/**
@@ -31,7 +33,7 @@ public class BicepsActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.biceps, menu);
+		getMenuInflater().inflate(R.menu.progress, menu);
 		return true;
 	}
 
@@ -52,37 +54,16 @@ public class BicepsActivity extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 	
-	@Override
-	protected void onResume()
-	{
-	   super.onResume();
-	   incrementRep();
-	}
-
-	
-	public void incrementRep() {
-		TextView tv = (TextView) findViewById(R.id.repCount);
-		int curRep = Integer.parseInt(tv.getText().toString());
-		curRep ++;
-		tv.setText("" + curRep);
-		if (curRep < 2) {
-			BodyDisplay.setActivation(MuscleGroup.BICEPS, 0);
-		} else if (curRep < 4) {
-			BodyDisplay.setActivation(MuscleGroup.BICEPS, 25);
-		} else if (curRep < 6) {
-			BodyDisplay.setActivation(MuscleGroup.BICEPS, 50);
-		} else if (curRep < 8) {
-			BodyDisplay.setActivation(MuscleGroup.BICEPS, 75);
+	public void click(View view) {
+		if (firstClick) {
+			ImageView iv = (ImageView)findViewById(R.id.timerBtn);
+			iv.setImageResource(R.drawable.stopbutton);
+			firstClick = false;
 		} else {
-			BodyDisplay.setActivation(MuscleGroup.BICEPS, 100);
+			Intent intent = new Intent(this, Results.class);
+			startActivity(intent);
+			firstClick = true;
 		}
-		
-	}
-	
-	public void showSummary(View view){
-//		Intent intent = new Intent(this, SummaryActivity.class);
-		Intent intent = new Intent(this, Results.class);
-		startActivity(intent);
 	}
 
 }

@@ -95,7 +95,12 @@ public class BodyDisplay extends Activity {
 	        		} else if (touchColor == Color.parseColor(MuscleGroup.ABS.getColour())) {
 	        			intent.setClass(BodyDisplay.this, MainActivity.class);
 	        		} else if (touchColor == Color.parseColor(MuscleGroup.BICEPS.getColour())) {
+	        			/*
+	        			PKTEST: Changing this to instead point to our sexy progress screen
 	        			intent.setClass(BodyDisplay.this, BicepsActivity.class);
+	        			*/
+	        			//TODO: link instead, to chris's "selectExercise" screen, then link that to progressActivity...
+	        			intent.setClass(BodyDisplay.this, ProgressActivity.class);
 	        		}
 	        		try {
 		        		startActivity(intent);

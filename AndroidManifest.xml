@@ -37,15 +37,21 @@
         </activity>
         <!-- Old theme caused issues, check with Chris if he uploaded: android:theme="@style/Theme.AppCompat.Light" -->
 
-        <activity
-            android:name="com.wearability.app.StartActivity"
-            android:label="@string/title_activity_start"
+		<activity
+            android:name="com.wearability.app.ExerciseList"
+            android:label="@string/title_activity_exercise_list"
             android:theme="@android:style/Theme.Holo.Light" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+		
+        <activity
+            android:name="com.wearability.app.StartActivity"
+            android:label="@string/title_activity_start"
+            android:theme="@android:style/Theme.Holo.Light" >
         </activity>
         <activity
             android:name="com.wearability.app.BodyDisplay"
@@ -78,6 +84,22 @@
         <activity
             android:name="com.wearability.app.SummaryActivity"
             android:label="@string/title_activity_summary" >
+        </activity>
+        <activity
+            android:name="com.wearability.app.Results"
+            android:label="@string/title_activity_results"
+            android:parentActivityName="com.wearability.app.BodyDisplay" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.wearability.app.BodyDisplay" />
+        </activity>
+         <activity
+            android:name="com.wearability.app.ProgressActivity"
+            android:label="@string/title_activity_progress"
+            android:parentActivityName="com.wearability.app.ExerciseList" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.wearability.app.ExerciseList" />
         </activity>
     </application>
 

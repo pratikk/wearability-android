@@ -11,8 +11,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:enabled="false"
-        android:text="" />
+        android:enabled="true"
+        android:text="# Reps" />
             
     <LinearLayout android:id="@+id/chart1" 
         android:orientation="horizontal" 
@@ -25,6 +25,15 @@
         android:layout_width="fill_parent" 
         android:layout_height="300dp"
         android:layout_below="@id/chart1" />
+
+    <Button
+        android:id="@+id/getReps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:text="Get Reps" 
+        android:onClick="printReps" />
     
 </RelativeLayout>
 </ScrollView>

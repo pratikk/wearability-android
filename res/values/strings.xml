@@ -20,5 +20,8 @@
     <string name="title_activity_abs">AbsActivity</string>
     <string name="title_activity_biceps">BicepsActivity</string>
     <string name="title_activity_summary">SummaryActivity</string>
-
+    <string name="title_activity_results">Results</string>
+    <string name="title_activity_progress">ProgressActivity</string>
+    <string name="title_activity_exercise_list">ExerciseList</string>
+    
 </resources>

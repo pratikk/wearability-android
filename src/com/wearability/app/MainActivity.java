@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.UUID;
 
 import org.achartengine.GraphicalView;
@@ -30,6 +31,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,6 +60,9 @@ public class MainActivity extends Activity {
  
   // MAC-address of Bluetooth module (you must edit this line)
   private static String address = "00:06:66:07:B5:FF";
+  
+  private DataAnalyzer da = new DataAnalyzer();
+  
    
   /** Called when the activity is first created. */
   @Override
@@ -67,7 +72,6 @@ public class MainActivity extends Activity {
     setContentView(R.layout.activity_main);
     
     txtArduino = (TextView) findViewById(R.id.txtArduino);		// for display the received data from the Arduino
-    
     
     h = new Handler() {
     	@Override
@@ -107,13 +111,19 @@ public class MainActivity extends Activity {
                     	//PKTEST
 	                    
 	                	if (sbprint.length() == 4 && goodValue) {	//PKTEST: math.random to speed things up?
-		            		Point p = new Point(lineA.getLastX()+1,parseValue(sbprint)); 
+		            		int parsedValue = parseValue(sbprint);
+	                		Point p = new Point(lineA.getLastX()+1,parsedValue); 
 		            		lineA.addRectifiedPoint(p);
 		            		viewA.repaint();
 		            		lineB.addWeightedPoint(lineA,p);
 		            		viewB.repaint();
 //	                		String oldtext = (String) txtArduino.getText() + "\r\n" + sbprint;
 //	                        txtArduino.setText(oldtext); 	        // update TextView
+		            		
+		            		if (Math.random() > 0.9) {		//Check new rep every 10 points
+		            			da.addValue((double) parsedValue);
+//		            			txtArduino.setText("Reps: " + da.getReps() + "\nPeak Effort: " + da.getPeakEffort());
+		            		}
                 	}
 	                		
 	                	//btnOff.setEnabled(true);
@@ -278,6 +288,11 @@ public class MainActivity extends Activity {
 	    
 	    return toReturn;
 		
+  }
+  
+  public void printReps(View view) {
+	  int reps = da.getReps();
+	  txtArduino.setText(reps + " reps");
   }
  
   private class ConnectedThread extends Thread {
