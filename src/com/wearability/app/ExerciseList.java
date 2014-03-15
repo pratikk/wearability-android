@@ -2,11 +2,14 @@ package com.wearability.app;
 
 import android.app.ListActivity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewGroup;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class ExerciseList extends ListActivity {
@@ -18,7 +21,22 @@ public class ExerciseList extends ListActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_exercise_list);
-        setListAdapter(new ArrayAdapter(this,  android.R.layout.simple_list_item_1, listItems));        
+//        setListAdapter(new ArrayAdapter(this,  android.R.layout.simple_list_item_1, listItems));
+        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, listItems) {
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view =super.getView(position, convertView, parent);
+
+                TextView textView=(TextView) view.findViewById(android.R.id.text1);
+
+                /*YOUR CHOICE OF COLOR*/
+                textView.setTextColor(Color.WHITE);
+
+                return view;
+            }
+        };
+        setListAdapter(adapter);
 	}
 
 	@Override

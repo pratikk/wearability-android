@@ -2,7 +2,7 @@
 <classpath>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
-	<classpathentry excluding="com/wearability/app/BTConn.java|com/wearability/app/BTConnect.java|com/wearability/adapter/NavDrawerListAdapter.java|com/wearability/model/" kind="src" path="src"/>
+	<classpathentry excluding="com/wearability/app/BTConn.java|com/wearability/app/BTConnect.java|com/wearability/adapter/NavDrawerListAdapter.java|com/wearability/model/|com/wearability/app/TSDatabaseHelper.java|com/wearability/app/StartActivity.java|com/wearability/app/BodyDisplay.java|com/wearability/app/DynamicGraphActivity.java|com/wearability/app/LineGraph.java|com/wearability/app/Point.java|com/wearability/app/MainActivity.java|com/wearability/app/MockData.java" kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry kind="lib" path="libs/achartengine-1.1.0.jar"/>

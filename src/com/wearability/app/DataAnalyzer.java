@@ -31,7 +31,7 @@ public class DataAnalyzer {
 	private static final int mAvgSmall = 20;
 	
 	//Sampling parameter
-	private static final double sampling_rate = 1;
+	private static final double sampling_rate = 50;
 	
 	//Data containers
 	private ArrayList<Double> rawData;

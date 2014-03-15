@@ -17,48 +17,39 @@
         android:theme="@style/AppTheme" >
 
        
-       <activity
-            android:name="com.wearability.app.MainActivity"
-            android:label="@string/title_activity_main" 
-            android:screenOrientation="portrait">
-            
-        </activity>
-   
-        <activity
-            android:name="com.wearability.app.HomeActivity"
-            android:label="@string/title_activity_main"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light" >
-        </activity>
-        <activity
-            android:name="com.wearability.app.StartActivity"
-            android:label="@string/title_activity_start"
-            android:theme="@android:style/Theme.Holo.Light" >
-        </activity>
-        <activity
-            android:name="com.wearability.app.BodyDisplay"
-            android:label="@string/title_activity_body_display"
-            android:parentActivityName="com.wearability.app.StartActivity" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.wearability.app.StartActivity" />
-        </activity>
+       
         <activity
             android:name="com.wearability.app.ExerciseList"
-            android:label="@string/title_activity_exercise_list" >
+            android:label="@string/title_activity_exercise_list" 
+            android:screenOrientation="portrait">
+            
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        
+        
         <activity
             android:name="com.wearability.app.ExerciseProgress"
-            android:label="@string/title_activity_exercise_progress" >
+            android:label="@string/title_activity_exercise_progress" 
+            android:screenOrientation="portrait"
+            android:parentActivityName="com.wearability.app.ExerciseList" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.wearability.app.ExerciseList" />
         </activity>
+       
         <activity
             android:name="com.wearability.app.Results"
-            android:label="@string/title_activity_results" >
+            android:label="@string/title_activity_results" 
+            android:screenOrientation="portrait"
+            android:parentActivityName="com.wearability.app.ExerciseList" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.wearability.app.ExerciseList" />
         </activity>
+        
     </application>
 
 </manifest>

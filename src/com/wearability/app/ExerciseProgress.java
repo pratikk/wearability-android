@@ -22,6 +22,7 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +35,9 @@ public class ExerciseProgress extends Activity {
 	
 	TextView txtArduino;
 	Handler h;
+	
+	boolean firstClick;
+
 	
 	//Bluetooth
 	final int RECEIVE_MESSAGE = 1;		// Status  for Handler
@@ -55,9 +59,12 @@ public class ExerciseProgress extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_exercise_progress);
 		
-	    txtArduino = (TextView) findViewById(R.id.rep_counter);		// for display the received data from the Arduino
+		setupActionBar();
+	    //txtArduino = (TextView) findViewById(R.id.rep_counter);		// for display the received data from the Arduino
 
 	    mDataAnalyzer = new DataAnalyzer();
+	    
+	    firstClick = true;
 	    
 	    h = new Handler() {
 	    	@Override
@@ -123,6 +130,11 @@ public class ExerciseProgress extends Activity {
 	    
 	}
 
+	private void setupActionBar() {
+
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+
+	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -167,8 +179,8 @@ public class ExerciseProgress extends Activity {
 	 
 	
 	public void goToResults(View view){
-	    txtArduino = (TextView) findViewById(R.id.rep_counter);		// for display the received data from the Arduino
-		txtArduino.setText("Total samples: "+mDataAnalyzer.getDuration() + "\n" +"Total"+ mDataAnalyzer.getReps());
+	    //txtArduino = (TextView) findViewById(R.id.rep_counter);		// for display the received data from the Arduino
+		//txtArduino.setText("Total samples: "+mDataAnalyzer.getDuration() + "\n" +"Total"+ mDataAnalyzer.getReps());
 		//sendEmail(sb2.toString() + mDataAnalyzer.getDataset());
 		//sendEmail(mDataAnalyzer.getDataset());
 		//writeStringAsFile(mDataAnalyzer.getDataset(), "filetextdata");
@@ -194,6 +206,24 @@ public class ExerciseProgress extends Activity {
 	public void clearData(View v){
 		Log.d(TAG,"clear data");
 		
+	}
+	
+	public void clickHandler(View view) {
+		if (firstClick) {
+			ImageView iv = (ImageView)findViewById(R.id.timerBtn);
+			iv.setImageResource(R.drawable.stopbutton);
+			firstClick = false;
+			
+		} else {
+			Intent intent = new Intent(this, Results.class);
+			intent.putExtra("reps", mDataAnalyzer.getReps());
+			intent.putExtra("peak", mDataAnalyzer.getPeakEffort());
+			intent.putExtra("mean", mDataAnalyzer.getMeanEffort());
+			intent.putExtra("cadence", mDataAnalyzer.getCadence());
+			intent.putExtra("duration", mDataAnalyzer.getDuration());
+			startActivity(intent);
+			firstClick = true;
+		}
 	}
 	
 	private void errorExit(String title, String message){
@@ -358,7 +388,7 @@ public class ExerciseProgress extends Activity {
 	        // Get a BluetoothSocket to connect with the given BluetoothDevice
 	        try {
 	            // MY_UUID is the app's UUID string, also used by the server code
-	            tmp = device.createRfcommSocketToServiceRecord(MY_UUID);
+	            tmp = device.createInsecureRfcommSocketToServiceRecord(MY_UUID);
 	        } catch (IOException e) { }
 	        mmSocket = tmp;
 	    }
@@ -376,7 +406,10 @@ public class ExerciseProgress extends Activity {
 	        } catch (IOException connectException) {
 	            // Unable to connect; close the socket and get out
 	        	Log.d(TAG,"..Call to socket.Connect failed" + connectException);
-	        	Log.d(TAG,"..bt state" + mmSocket.isConnected());
+	        	if(mmSocket != null){
+	        		Log.d(TAG,"..bt state" + mmSocket.isConnected());
+	        	}
+	        	
 	            try {
 	                mmSocket.close();
 	            } catch (IOException closeException) { 

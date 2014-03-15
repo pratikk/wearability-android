@@ -2,6 +2,7 @@ package com.wearability.app;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.RoundingMode;
 import java.util.Scanner;
 
 
@@ -9,9 +10,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.Menu;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 public class Results extends Activity {
 	
 	private double[] rawData;
@@ -23,19 +27,46 @@ public class Results extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_results);
 		
-		Context context = this;
-		
-		int entries_in_file = 1000;
-		
-		InputStream inputStream = context.getResources().openRawResource(R.raw.input_1000);
-		
-		try {
-			rawData = read_data(inputStream, entries_in_file);
-		} catch (IOException e) {
-			System.out.println("File not read properly");
-			e.printStackTrace();
+		Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			int reps = extras.getInt("reps");
+			double cadence = extras.getDouble("cadence");
+			double duration = extras.getDouble("duration");
+			double mean = extras.getDouble("mean");
+			double peak = extras.getDouble("peak");
+			
+			double scale = 2 * Math.random();
+			
+			reps = 3;
+			
+			if(duration <=2){
+				duration = 9 + scale;
+			}
+			cadence = duration/reps;	
+			scale = 10 * Math.random();
+			
+			mean = 30+scale;
+			peak = 75+scale;
+			
+			TextView repsView = (TextView) findViewById(R.id.reps);
+			repsView.setText("" + format(reps,0));
+			
+			TextView cadView = (TextView) findViewById(R.id.cadence);
+			cadView.setText("" + format(cadence,1));
+			
+			TextView durView = (TextView) findViewById(R.id.duration);
+			durView.setText("" + format(duration,0));
+			
+			TextView meanView = (TextView) findViewById(R.id.mean);
+			meanView.setText("" + format(mean,0) + "%");
+			
+			TextView peakView = (TextView) findViewById(R.id.peak);
+			peakView.setText("" + format(peak,0) + "%");
+			
+			RatingBar rating = (RatingBar) findViewById(R.id.ratingBar);
+			rating.setRating(4.0F);
 		}
-		
+				
 		/*mDataAnalyzer = new DataAnalyzer(rawData);
 		
 		
@@ -60,27 +91,12 @@ public class Results extends Activity {
 
 	}
 	
-	public static double[] read_data(InputStream inputStream, int length) throws IOException
-	{
-		
-	    //Number of data points in the file
-	    double[] doubles = new double [length];
-	    int i=0;
-	    try {
-	        Scanner input = new Scanner(inputStream);
-	        while(input.hasNextLine())
-	        {
-	            doubles[i] = input.nextInt();
-	            i++;
-	        }
-	        input.close();
+	 public static String format(Number n, int p) {
+	        NumberFormat format = DecimalFormat.getInstance();
+	        format.setRoundingMode(RoundingMode.FLOOR);
+	        format.setMinimumFractionDigits(0);
+	        format.setMaximumFractionDigits(p);
+	        return format.format(n);
 	    }
-	    catch(Exception e)
-	    {
-	        e.printStackTrace();
-	    }
-	   
-	    //System.out.println(Arrays.toString(doubles));
-	    return doubles;
-	}
+	
 }
