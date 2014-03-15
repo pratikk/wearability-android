@@ -51,9 +51,9 @@ public class AbsActivity extends Activity {
 		return super.onOptionsItemSelected(item);
 	}
 	
-	public void backToMuscles(View view){
-		Intent intent = new Intent(this, BodyDisplay.class);
-		startActivity(intent);
-	}
+//	public void backToMuscles(View view){
+//		Intent intent = new Intent(this, BodyDisplay.class);
+//		startActivity(intent);
+//	}
 
 }

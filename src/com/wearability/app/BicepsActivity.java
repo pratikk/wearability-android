@@ -61,21 +61,21 @@ public class BicepsActivity extends Activity {
 
 	
 	public void incrementRep() {
-		TextView tv = (TextView) findViewById(R.id.repCount);
-		int curRep = Integer.parseInt(tv.getText().toString());
-		curRep ++;
-		tv.setText("" + curRep);
-		if (curRep < 2) {
-			BodyDisplay.setActivation(MuscleGroup.BICEPS, 0);
-		} else if (curRep < 4) {
-			BodyDisplay.setActivation(MuscleGroup.BICEPS, 25);
-		} else if (curRep < 6) {
-			BodyDisplay.setActivation(MuscleGroup.BICEPS, 50);
-		} else if (curRep < 8) {
-			BodyDisplay.setActivation(MuscleGroup.BICEPS, 75);
-		} else {
-			BodyDisplay.setActivation(MuscleGroup.BICEPS, 100);
-		}
+//		TextView tv = (TextView) findViewById(R.id.repCount);
+//		int curRep = Integer.parseInt(tv.getText().toString());
+//		curRep ++;
+//		tv.setText("" + curRep);
+//		if (curRep < 2) {
+//			BodyDisplay.setActivation(MuscleGroup.BICEPS, 0);
+//		} else if (curRep < 4) {
+//			BodyDisplay.setActivation(MuscleGroup.BICEPS, 25);
+//		} else if (curRep < 6) {
+//			BodyDisplay.setActivation(MuscleGroup.BICEPS, 50);
+//		} else if (curRep < 8) {
+//			BodyDisplay.setActivation(MuscleGroup.BICEPS, 75);
+//		} else {
+//			BodyDisplay.setActivation(MuscleGroup.BICEPS, 100);
+//		}
 		
 	}
 	
