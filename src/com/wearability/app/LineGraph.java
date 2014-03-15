@@ -86,7 +86,7 @@ public class LineGraph {
 	}
 	//rectify = abs(Data - mean(data))
 	public void addWeightedPoint(LineGraph lg, Point p) {
-		final int NUM_POINTS = 5;	//170 ms = 34 points
+		final int NUM_POINTS = 100;	//170 ms = 34 points
 		if (lg.dataset.getItemCount() >= NUM_POINTS) {		//Enough points for weighted avg
 			int w_avg = 0; //see if floats work
 			for (int i = lg.dataset.getItemCount() - NUM_POINTS; i < lg.dataset.getItemCount(); i++) {
