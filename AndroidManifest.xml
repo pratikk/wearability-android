@@ -40,6 +40,7 @@
 		<activity
             android:name="com.wearability.app.ExerciseList"
             android:label="@string/title_activity_exercise_list"
+            android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Holo.Light" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -51,11 +52,13 @@
         <activity
             android:name="com.wearability.app.StartActivity"
             android:label="@string/title_activity_start"
+            android:screenOrientation="portrait"
             android:theme="@android:style/Theme.Holo.Light" >
         </activity>
         <activity
             android:name="com.wearability.app.BodyDisplay"
             android:label="@string/title_activity_body_display"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.wearability.app.StartActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -63,11 +66,13 @@
         </activity>
         <activity
             android:name="com.wearability.app.ChestActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_chest" >
         </activity>
         <activity
             android:name="com.wearability.app.AbsActivity"
             android:label="@string/title_activity_abs"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.wearability.app.BodyDisplay" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -76,6 +81,7 @@
         <activity
             android:name="com.wearability.app.BicepsActivity"
             android:label="@string/title_activity_biceps"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.wearability.app.BodyDisplay" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -83,11 +89,13 @@
         </activity>
         <activity
             android:name="com.wearability.app.SummaryActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_summary" >
         </activity>
         <activity
             android:name="com.wearability.app.Results"
             android:label="@string/title_activity_results"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.wearability.app.BodyDisplay" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -96,6 +104,7 @@
          <activity
             android:name="com.wearability.app.ProgressActivity"
             android:label="@string/title_activity_progress"
+            android:screenOrientation="portrait"
             android:parentActivityName="com.wearability.app.ExerciseList" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

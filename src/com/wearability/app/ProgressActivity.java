@@ -61,6 +61,11 @@ public class ProgressActivity extends Activity {
 			firstClick = false;
 		} else {
 			Intent intent = new Intent(this, Results.class);
+			intent.putExtra("reps", 4);
+			intent.putExtra("peak", 92.1);
+			intent.putExtra("mean", 43.2);
+			intent.putExtra("cadence", 3);
+			intent.putExtra("duration", 23);
 			startActivity(intent);
 			firstClick = true;
 		}

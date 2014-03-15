@@ -23,6 +23,29 @@ public class Results extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_results);
 		
+		Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+		    int reps = extras.getInt("reps");
+		    int cadence = extras.getInt("cadence");
+		    int duration = extras.getInt("duration");
+		    double mean = extras.getDouble("mean");
+		    double peak = extras.getDouble("peak");
+		    
+		    TextView repsView = (TextView) findViewById(R.id.reps);
+		    repsView.setText("" + reps);
+		    
+		    TextView cadView = (TextView) findViewById(R.id.cadence);
+		    cadView.setText("" + cadence);
+		    
+		    TextView durView = (TextView) findViewById(R.id.duration);
+		    durView.setText("" + duration);
+		    
+		    TextView meanView = (TextView) findViewById(R.id.mean);
+		    meanView.setText("" + mean + "%");
+		    
+		    TextView peakView = (TextView) findViewById(R.id.peak);
+		    peakView.setText("" + peak + "%");
+		}
 		/*mDataAnalyzer = new DataAnalyzer(rawData);
 		
 		
