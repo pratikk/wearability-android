@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import android.app.Activity;
@@ -18,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
@@ -34,6 +37,12 @@ public class ExerciseProgress extends Activity {
 	private static final String address = "00:06:66:07:B5:FF";
 	
 	TextView txtArduino;
+	TextView timerText;
+	long seconds;
+	int timerCount;
+	Timer timer;
+	TimerTask timerTask;
+	
 	Handler h;
 	
 	boolean firstClick;
@@ -62,6 +71,8 @@ public class ExerciseProgress extends Activity {
 		setupActionBar();
 	    //txtArduino = (TextView) findViewById(R.id.rep_counter);		// for display the received data from the Arduino
 
+		timerText = (TextView) findViewById(R.id.timerText);
+        
 	    mDataAnalyzer = new DataAnalyzer();
 	    
 	    firstClick = true;
@@ -160,7 +171,9 @@ public class ExerciseProgress extends Activity {
 	  @Override
 	  public void onResume() {
 	    super.onResume();
-	 
+		ImageView iv = (ImageView)findViewById(R.id.timerBtn);
+		iv.setImageResource(R.drawable.startbutton);
+		iv.bringToFront();
 	    
 	    Log.d(TAG, "...onResume - try connecting...");
 	    
@@ -210,8 +223,18 @@ public class ExerciseProgress extends Activity {
 	
 	public void clickHandler(View view) {
 		if (firstClick) {
+			timer = new Timer();
+			timerTask = new TimerTask() {
+			       public void run() {
+				       // TODO Auto-generated method stub
+			    	   timerMethod();
+			       }
+	        };
+			timer.scheduleAtFixedRate(timerTask, 1L, 100L);
 			ImageView iv = (ImageView)findViewById(R.id.timerBtn);
 			iv.setImageResource(R.drawable.stopbutton);
+			TextView tv = (TextView)findViewById(R.id.timerText);
+			tv.bringToFront();
 			firstClick = false;
 			
 		} else {
@@ -220,9 +243,15 @@ public class ExerciseProgress extends Activity {
 			intent.putExtra("peak", mDataAnalyzer.getPeakEffort());
 			intent.putExtra("mean", mDataAnalyzer.getMeanEffort());
 			intent.putExtra("cadence", mDataAnalyzer.getCadence());
-			intent.putExtra("duration", mDataAnalyzer.getDuration());
-			startActivity(intent);
+			intent.putExtra("duration", seconds);
 			firstClick = true;
+			timer.cancel();
+			timerTask.cancel();
+			//Try using only one of these pairs
+			timer = null;
+			timerTask = null;
+			seconds = 0;
+			startActivity(intent);
 		}
 	}
 	
@@ -298,6 +327,21 @@ public class ExerciseProgress extends Activity {
 	      }
 	      return  device.createRfcommSocketToServiceRecord(MY_UUID);
 	  }
+	 
+	 private void timerMethod(){
+		   this.runOnUiThread(generate);
+		}
+		private Runnable generate= new Runnable() {
+		     public void run() {
+		         timerText.setText("" + seconds + ":" + timerCount);
+		         timerCount++;
+		         if(timerCount==10){
+		            timerCount=0;
+		            //Fix this to use millis to translate to seconds, then translate seconds to minutes with reset flags, etc.
+		            seconds++;
+		         }
+		     }
+		};
 
   private class ManageThread extends Thread {
 	    private InputStream mmInStream;

@@ -31,7 +31,7 @@ public class Results extends Activity {
 		if (extras != null) {
 			int reps = extras.getInt("reps");
 			double cadence = extras.getDouble("cadence");
-			double duration = extras.getDouble("duration");
+			double duration = extras.getLong("duration");
 			double mean = extras.getDouble("mean");
 			double peak = extras.getDouble("peak");
 			
@@ -39,9 +39,9 @@ public class Results extends Activity {
 			
 			reps = 3;
 			
-			if(duration <=2){
-				duration = 9 + scale;
-			}
+//			if(duration <=2){
+//				duration = 9 + scale;
+//			}
 			cadence = duration/reps;	
 			scale = 10 * Math.random();
 			

@@ -17,7 +17,7 @@
         android:layout_centerVertical="true"
         android:textSize="116dp"
         android:fontFamily="Helvetica"
-        android:text="#:##" 
+        android:text="" 
         android:textColor="#ffffff" />
     <ImageView
         android:id="@+id/timerBtn"
