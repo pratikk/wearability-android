@@ -22,6 +22,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.text.InputFilter.LengthFilter;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -62,6 +63,8 @@ public class ExerciseProgress extends Activity {
  
 	private ArrayList<Double> mRawData;
 	private DataAnalyzer mDataAnalyzer;
+	
+	private boolean BTState;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -135,8 +138,6 @@ public class ExerciseProgress extends Activity {
 	        };
 		};
 	    
-	    mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();		// get Bluetooth adapter
-	    checkBTState();
 	    
 	    
 	}
@@ -177,15 +178,8 @@ public class ExerciseProgress extends Activity {
 	    
 	    Log.d(TAG, "...onResume - try connecting...");
 	    
-	    BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
-	    
-	    if (mManageThread != null){
-	    	mManageThread.cancel();	
-	    }
-	    if (mConnectThread != null){
-	    	mConnectThread.cancel();	
-	    }
-	    mConnectThread = new ConnectThread(device);
+	  
+	    mConnectThread = new ConnectThread();
 	    mConnectThread.start();
 	    
 	  }
@@ -222,37 +216,43 @@ public class ExerciseProgress extends Activity {
 	}
 	
 	public void clickHandler(View view) {
-		if (firstClick) {
-			timer = new Timer();
-			timerTask = new TimerTask() {
-			       public void run() {
-				       // TODO Auto-generated method stub
-			    	   timerMethod();
-			       }
-	        };
-			timer.scheduleAtFixedRate(timerTask, 1L, 100L);
-			ImageView iv = (ImageView)findViewById(R.id.timerBtn);
-			iv.setImageResource(R.drawable.stopbutton);
-			TextView tv = (TextView)findViewById(R.id.timerText);
-			tv.bringToFront();
-			firstClick = false;
-			
-		} else {
-			Intent intent = new Intent(this, Results.class);
-			intent.putExtra("reps", mDataAnalyzer.getReps());
-			intent.putExtra("peak", mDataAnalyzer.getPeakEffort());
-			intent.putExtra("mean", mDataAnalyzer.getMeanEffort());
-			intent.putExtra("cadence", mDataAnalyzer.getCadence());
-			intent.putExtra("duration", seconds);
-			firstClick = true;
-			timer.cancel();
-			timerTask.cancel();
-			//Try using only one of these pairs
-			timer = null;
-			timerTask = null;
-			seconds = 0;
-			startActivity(intent);
+		if(!BTState){
+			Toast.makeText(ExerciseProgress.this, "Bluetooth not paired", Toast.LENGTH_SHORT).show();
 		}
+		else{
+			if (firstClick) {
+				timer = new Timer();
+				timerTask = new TimerTask() {
+				       public void run() {
+					       // TODO Auto-generated method stub
+				    	   timerMethod();
+				       }
+		        };
+				timer.scheduleAtFixedRate(timerTask, 1L, 100L);
+				ImageView iv = (ImageView)findViewById(R.id.timerBtn);
+				iv.setImageResource(R.drawable.stopbutton);
+				TextView tv = (TextView)findViewById(R.id.timerText);
+				tv.bringToFront();
+				firstClick = false;
+				
+			} else {
+				Intent intent = new Intent(this, Results.class);
+				intent.putExtra("reps", mDataAnalyzer.getReps());
+				intent.putExtra("peak", mDataAnalyzer.getPeakEffort());
+				intent.putExtra("mean", mDataAnalyzer.getMeanEffort());
+				intent.putExtra("cadence", mDataAnalyzer.getCadence());
+				intent.putExtra("duration", seconds);
+				firstClick = true;
+				timer.cancel();
+				timerTask.cancel();
+				//Try using only one of these pairs
+				timer = null;
+				timerTask = null;
+				seconds = 0;
+				startActivity(intent);
+			}
+		}
+		
 	}
 	
 	private void errorExit(String title, String message){
@@ -375,6 +375,7 @@ public class ExerciseProgress extends Activity {
 	    
 	    @Override
 		public void run() {
+	    	BTState = true;
 	        byte[] buffer = new byte[6];  // buffer store for the stream
 	        int bytes; // bytes returned from read()
 
@@ -395,6 +396,7 @@ public class ExerciseProgress extends Activity {
 	    
 	    public void cancel()
         {
+	    	BTState = false;
 	        Log.d(TAG,"Cancel manageThread");
 
             if (mmOutStream != null)
@@ -422,13 +424,37 @@ public class ExerciseProgress extends Activity {
 	    private  BluetoothSocket mmSocket;
 	    private BluetoothDevice mmDevice;
 	 
-	    public ConnectThread(BluetoothDevice device) {
+	    public ConnectThread() {
+
+	    	
+	        Log.d(TAG,"Starting connectThread");
+
+	    	 if (mManageThread != null){
+		  	    	mManageThread.cancel();
+		  	    	Thread moribund = mManageThread;
+		  	    	mManageThread = null;
+		  	    	moribund.interrupt();
+		  	    }
+		  	    if (mConnectThread != null){
+		  	    	mConnectThread.cancel();
+		  	    	Thread moribund = mConnectThread;
+		  	    	mConnectThread = null;
+		  	    	moribund.interrupt();   
+		  	    }
+	    	  
+		  	    getSocket();
+
+	    }
+	 
+	    public void getSocket(){
+	    	mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();		// get Bluetooth adapter
+		    checkBTState();
+	    	BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
 	        // Use a temporary object that is later assigned to mmSocket,
 	        // because mmSocket is final
 	        BluetoothSocket tmp = null;
 	        mmDevice = device;
 	 
-	        Log.d(TAG,"Starting connectThread");
 	        // Get a BluetoothSocket to connect with the given BluetoothDevice
 	        try {
 	            // MY_UUID is the app's UUID string, also used by the server code
@@ -436,45 +462,75 @@ public class ExerciseProgress extends Activity {
 	        } catch (IOException e) { }
 	        mmSocket = tmp;
 	    }
-	 
-	    public void run() {
-	        // Cancel discovery because it will slow down the connection
-	        mBluetoothAdapter.cancelDiscovery();
-	 
-	        try {
-	            // Connect the device through the socket. This will block
-	            // until it succeeds or throws an exception
-	        	Log.d(TAG,"Socket current state" + mmSocket.isConnected());
-	            mmSocket.connect();
-	            
-	        } catch (IOException connectException) {
+	    
+	    void wrapSocketConnect(){
+	    	if (mmSocket == null){
+	    		getSocket();
+	    	}
+	    	try {
+	    		mBluetoothAdapter.cancelDiscovery();
+				mmSocket.connect();
+			} catch (IOException connectException) {
 	            // Unable to connect; close the socket and get out
 	        	Log.d(TAG,"..Call to socket.Connect failed" + connectException);
-	        	if(mmSocket != null){
-	        		Log.d(TAG,"..bt state" + mmSocket.isConnected());
+			}
+	    }
+	    
+	    public void run() {
+	        // Cancel discovery because it will slow down the connection
+	        
+	 
+	        int numFails = 0;
+	        int MAX_FAILS = 3;
+	        boolean success = false;
+	        	        
+	        while(numFails < MAX_FAILS && success == false){
+	        	wrapSocketConnect();
+	        	if(!mmSocket.isConnected()) {
+	        		numFails++;
+	        	}
+	        	else{
+	        		success = true;
 	        	}
 	        	
-	            try {
+	        }
+	              
+	        if(success == false){
+	        	 mBluetoothAdapter.disable();
+	 	        try {
+	 				Thread.sleep(500);
+	 			} catch (InterruptedException e) {
+	 				Log.d(TAG, "couldn't sleep thread!");
+	 			}                  
+	            getSocket();
+	 	        mBluetoothAdapter.cancelDiscovery();
+	 	        wrapSocketConnect();
+	        }
+	       
+	        if(!mmSocket.isConnected()){
+	        	
+		        try {
 	                mmSocket.close();
 	            } catch (IOException closeException) { 
 	            	Log.d(TAG,"..Could not close socket" + closeException);
 	            }
 	            return;
-	        }
+		        }
+	        else{
+	        	 // Do work to manage the connection (in a separate thread)
+		        if (mManageThread != null){
+		        	mManageThread.cancel();
+		        }
+		    	mManageThread = new ManageThread( mmSocket);
+		    	mManageThread.start();
+		        ExerciseProgress.this.runOnUiThread(new Runnable() {
+		        	  public void run() {
+		        		  Toast.makeText(ExerciseProgress.this, "Connected to BT", Toast.LENGTH_SHORT).show();
+		        		  }
+		        	});
+		        }
 	 
-	        // Do work to manage the connection (in a separate thread)
-	        if (mManageThread != null){
-	        	mManageThread.cancel();
-	        }
-	    	mManageThread = new ManageThread( mmSocket);
-	    	mManageThread.start();
-	        ExerciseProgress.this.runOnUiThread(new Runnable() {
-	        	  public void run() {
-	        		  Toast.makeText(ExerciseProgress.this, "Connected to BT", Toast.LENGTH_SHORT).show();
-	        		  }
-	        	});
-		    //Toast.makeText(ExerciseProgress.this, "Connected to BT", Toast.LENGTH_SHORT).show();
-
+	       
 	    }
 	 
 	    /** Will cancel an in-progress connection, and close the socket */

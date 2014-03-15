@@ -57,7 +57,7 @@ public class ExerciseList extends ListActivity {
 		// TODO Auto-generated method stub
 		
 		String selection = l.getItemAtPosition(position).toString();
-		Toast.makeText(this, selection, Toast.LENGTH_LONG).show();
+		Toast.makeText(this, selection, Toast.LENGTH_SHORT).show();
 		startExercise(selection);
 		super.onListItemClick(l, v, position, id);
 	}
