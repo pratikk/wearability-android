@@ -5,14 +5,14 @@ import java.io.InputStream;
 import java.math.RoundingMode;
 import java.util.Scanner;
 
-
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.widget.RatingBar;
 import android.widget.TextView;
-
+import android.widget.Toast;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -30,23 +30,33 @@ public class Results extends Activity {
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			int reps = extras.getInt("reps");
-			double cadence = extras.getDouble("cadence");
+//			double cadence = extras.getDouble("cadence");
 			double duration = extras.getLong("duration");
 			double mean = extras.getDouble("mean");
 			double peak = extras.getDouble("peak");
 			
+			String emailData = extras.getString("email");
+			sendEmail(emailData.toString());
+			
+			
+			
 			double scale = 2 * Math.random();
 			
-			reps = 3;
+			//reps = 3;
 			
 //			if(duration <=2){
 //				duration = 9 + scale;
 //			}
-			cadence = duration/reps;	
-			scale = 10 * Math.random();
+			double cadence;
+			if (reps == 0) {
+				cadence = 0;
+			} else { 
+				cadence = duration/reps;	
+			}
+			//scale = 10 * Math.random();
 			
-			mean = 30+scale;
-			peak = 75+scale;
+			//mean = 30+scale;
+			//peak = 75+scale;
 			
 			TextView repsView = (TextView) findViewById(R.id.reps);
 			repsView.setText("" + format(reps,0));
@@ -89,6 +99,20 @@ public class Results extends Activity {
 	  public void onResume() {
 	    super.onResume();
 
+	}
+	
+	public void sendEmail(String sendThis){
+		Intent i = new Intent(Intent.ACTION_SEND);
+		i.setType("message/rfc822");
+		i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"marsimard@gmail.com","chris@menezes.ca", "pratikkonnur@hotmail.com"});
+		i.putExtra(Intent.EXTRA_SUBJECT, "android data");
+		i.putExtra(Intent.EXTRA_TEXT   , sendThis);
+		try {
+		    startActivity(Intent.createChooser(i, "Send mail..."));
+		} catch (android.content.ActivityNotFoundException ex) {
+		    Toast.makeText(Results.this, "There are no email clients installed.", Toast.LENGTH_SHORT).show();
+		}
+		
 	}
 	
 	 public static String format(Number n, int p) {

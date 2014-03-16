@@ -113,14 +113,15 @@ public class ExerciseProgress extends Activity {
 		            	if (endOfLineIndex > 0) { 											// if end-of-line,
 		            		String sbprint = sb.substring(0, endOfLineIndex);				// extract string
 		                    if (goodValue) {	//should be + 2, +1 I think
-		                    	sb.delete(0, endOfLineIndex + 4);										// and clear including carriage returns
-		                    } else {
 		                    	sb.delete(0, endOfLineIndex + 2);										// and clear including carriage returns
+		                    } else {
+		                    	sb.delete(0, endOfLineIndex + 1);										// and clear including carriage returns
 		                    }
 		                    
-		                	if (sbprint.length() == 4 && goodValue) {	
+		                	if (sbprint.length() == 3 && goodValue) {		//Changed from 4 to 3 due to single channel non-hex	
 		                		//txtArduino.setText(mDataAnalyzer.getReps() + " reps");
-		                		mDataAnalyzer.addValue(parseValue(sbprint));
+		                		//mDataAnalyzer.addValue(parseValue(sbprint));
+		                		mDataAnalyzer.addValue(Integer.parseInt(sbprint));
 		                		}
 		                		
 		                	//btnOff.setEnabled(true);
@@ -199,7 +200,8 @@ public class ExerciseProgress extends Activity {
 	public void sendEmail(String sendThis){
 		Intent i = new Intent(Intent.ACTION_SEND);
 		i.setType("message/rfc822");
-		i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"marsimard@gmail.com","chris@menezes.ca"});
+//		i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"marsimard@gmail.com","chris@menezes.ca"});
+		i.putExtra(Intent.EXTRA_EMAIL  , new String[]{"pratikkonnur@hotmail.com"});
 		i.putExtra(Intent.EXTRA_SUBJECT, "android data");
 		i.putExtra(Intent.EXTRA_TEXT   , sendThis);
 		try {
@@ -242,6 +244,7 @@ public class ExerciseProgress extends Activity {
 				intent.putExtra("mean", mDataAnalyzer.getMeanEffort());
 				intent.putExtra("cadence", mDataAnalyzer.getCadence());
 				intent.putExtra("duration", seconds);
+				intent.putExtra("email", sb2.toString() + mDataAnalyzer.getDataset());
 				firstClick = true;
 				timer.cancel();
 				timerTask.cancel();
@@ -249,6 +252,7 @@ public class ExerciseProgress extends Activity {
 				timer = null;
 				timerTask = null;
 				seconds = 0;
+				
 				startActivity(intent);
 			}
 		}

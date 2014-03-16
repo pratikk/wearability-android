@@ -22,13 +22,13 @@ public class DataAnalyzer {
 	//Parameters for peak values
 	private static final String TAG = "wearability";
 
-	private static final int threshold = 10;
-	private static final int min_distance = 100;
-	double mvc = 40;
+	private static final int threshold = 100;
+	private static final int min_distance = 200;
+	double mvc = 40*4;
 
 	//Parameter for moving average
-	private static final int mAvgBig = 40;
-	private static final int mAvgSmall = 20;
+	private static final int mAvgBig = 150;
+	private static final int mAvgSmall = 50;
 	
 	//Sampling parameter
 	private static final double sampling_rate = 50;
@@ -36,6 +36,9 @@ public class DataAnalyzer {
 	//Data containers
 	private ArrayList<Double> rawData;
 	private ArrayList<DataPoint> dataPoints; //processed data
+	ArrayList<Double> data1_rec;
+	ArrayList<Double> data1_smooth;
+	
 
 	
 	public DataAnalyzer(){
@@ -47,10 +50,10 @@ public class DataAnalyzer {
 		if(rawData.size() > 1500)
 		{
 			this.rawData = rawData;
-			ArrayList<Double> data1_rec = rectify(rawData, mean(rawData));
+			data1_rec = rectify(rawData, mean(rawData));
 			
 			//Do two passes of moving average
-			ArrayList<Double> data1_smooth = smooth(data1_rec, mAvgBig);
+			data1_smooth = smooth(data1_rec, mAvgBig);
 			data1_smooth = smooth(data1_smooth, mAvgSmall);	
 			
 			dataPoints = findpeaks(data1_smooth, threshold, min_distance);	
@@ -67,9 +70,9 @@ public class DataAnalyzer {
 		//Should this kill the processed data list??
 		this.dataPoints.clear();
 
-		ArrayList<Double> data1_rec = rectify(rawData, mean(rawData));
+		data1_rec = rectify(rawData, mean(rawData));
 		
-		ArrayList<Double> data1_smooth = smooth(data1_rec, mAvgBig);
+		data1_smooth = smooth(data1_rec, mAvgBig);
 		data1_smooth = smooth(data1_smooth, mAvgSmall);	
 		
 		//write_output(rawData, dataPoints, data1_smooth);
@@ -92,7 +95,7 @@ public class DataAnalyzer {
 		
 		Log.d(TAG,"Calculating number of reps...");
 		Log.d(TAG,"Total data points collected..." + rawData.size());
-		if(rawData.size() < 600){
+		if(rawData.size() < mAvgBig){
 			return 0;
 		}
 		reset();
@@ -122,15 +125,16 @@ public class DataAnalyzer {
 	
 	public double getMeanEffort(){
 		
-		ArrayList<Double> data1_smooth = smooth(rawData, 840);
+//		ArrayList<Double> data1_smooth = smooth(rawData, 840);
 		
 		//Second pass of smoothing with a moving average of 100 terms
-		data1_smooth = smooth(data1_smooth, 100);
+//		data1_smooth = smooth(data1_smooth, 100);
 		
-		double mean_effort = mean(data1_smooth)*100/mvc;
-		
-		return mean_effort;
-		
+		if (rawData.size() > mAvgBig) {
+			return mean(data1_smooth)*100/mvc;
+		} else {
+			return 0;
+		}		
 	}
 	
 	public double getPeakEffort(){
@@ -175,7 +179,7 @@ public class DataAnalyzer {
 	*k: the number of terms in the moving average*/
 	private ArrayList<Double> smooth(ArrayList<Double> rawData2,int k){
 
-		if(rawData2.size() < 600){
+		if(rawData2.size() < mAvgBig){
 			return rawData2;
 		}
 		if (k > rawData.size()){
@@ -352,10 +356,10 @@ public class DataAnalyzer {
 		
 		StringBuilder sb = new StringBuilder();
 		
-		ArrayList<Double> data1_rec = rectify(rawData, mean(rawData));
+//		data1_rec = rectify(rawData, mean(rawData));
 		
-		ArrayList<Double> data1_smooth = smooth(data1_rec, mAvgBig);
-		data1_smooth = smooth(data1_smooth, mAvgSmall);	
+//		data1_smooth = smooth(data1_rec, mAvgBig);
+//		data1_smooth = smooth(data1_smooth, mAvgSmall);	
 		
 		sb.append("\n");
 		sb.append("\n Raw data \n");
@@ -367,8 +371,13 @@ public class DataAnalyzer {
 
 		sb.append("\n");
 		sb.append("Smooth data \n");
-		for(int i=0; i < data1_smooth.size(); i++){
-			sb.append(data1_smooth.get(i));
+		if (rawData.size() > mAvgBig) {
+			for(int i=0; i < data1_smooth.size(); i++){
+				sb.append(data1_smooth.get(i));
+				sb.append("\n");
+			}
+		} else {
+			sb.append("Not enough data points to smooth");
 			sb.append("\n");
 		}
 		
