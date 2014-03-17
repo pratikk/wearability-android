@@ -24,7 +24,7 @@ public class DataAnalyzer {
 
 	private static final int threshold = 100;
 	private static final int min_distance = 200;
-	double mvc = 40*4;
+	double mvc = 185;
 
 	//Parameter for moving average
 	private static final int mAvgBig = 150;

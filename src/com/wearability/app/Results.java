@@ -35,8 +35,8 @@ public class Results extends Activity {
 			double mean = extras.getDouble("mean");
 			double peak = extras.getDouble("peak");
 			
-			String emailData = extras.getString("email");
-			sendEmail(emailData.toString());
+//			String emailData = extras.getString("email");
+//			sendEmail(emailData.toString());
 			
 			
 			
@@ -74,7 +74,19 @@ public class Results extends Activity {
 			peakView.setText("" + format(peak,0) + "%");
 			
 			RatingBar rating = (RatingBar) findViewById(R.id.ratingBar);
-			rating.setRating(4.0F);
+			if (reps == 0 || mean == 0 || peak == 0) {
+				rating.setRating(0F);
+			} else if (peak > 90 && mean > 50) {
+				rating.setRating(5F);
+			} else if (peak > 80 || mean > 50) {
+				rating.setRating(4F);
+			} else if (peak > 70 && mean > 40) {
+				rating.setRating(3F);
+			} else if (peak > 50 && mean > 30) {
+				rating.setRating(2F);
+			} else {
+				rating.setRating(1F);
+			}
 		}
 				
 		/*mDataAnalyzer = new DataAnalyzer(rawData);
